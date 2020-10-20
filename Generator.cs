@@ -16,10 +16,10 @@ namespace ReadMeGenerator
 
     public Generator()
     {
-      _currentDirectory = Directory.GetCurrentDirectory();
+      _currentDirectory = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\netcoreapp3.1", "");
       _parentDirectory = Directory.GetParent(_currentDirectory);
       _directoriesInParentDirectory = Directory.GetDirectories(_parentDirectory.ToString()).ToList();
-      _snippetsDirectories = _directoriesInParentDirectory.Select(e => Path.Combine(e, "snippets")).ToList();
+      _snippetsDirectories = _directoriesInParentDirectory.Select(e => Path.Combine(e.Replace("\\bin\\Debug\\netcoreapp3.1", ""), "snippets")).ToList();
     }
 
     public void Generate()
@@ -83,6 +83,7 @@ namespace ReadMeGenerator
           }
           using (StreamWriter writer = new StreamWriter(Path.Combine(parentSnippetsDirectory, $"README.md")))
           {
+            System.Console.WriteLine(Path.Combine(parentSnippetsDirectory, $"README.md"));
             writer.WriteLine(builder.ToString());
           }
         }
