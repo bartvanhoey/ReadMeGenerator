@@ -31,19 +31,22 @@ namespace ReadMeGenerator
           var parentSnippetsDirectory = Directory.GetParent(snippetDirectory).ToString();
           var readMeJsonFilePath = Path.Combine(parentSnippetsDirectory, "readme.json");
           var builder = new StringBuilder();
-          dynamic readMeArray;
+          dynamic readMeJson;
 
           using (StreamReader r = new StreamReader(readMeJsonFilePath))
           {
             string json = r.ReadToEnd();
-            readMeArray = JsonConvert.DeserializeObject(json);
+            readMeJson = JsonConvert.DeserializeObject(json);
 
-            var title = readMeArray.title.Value;
-            var animated_gif = readMeArray.animated_gif.Value;
+            var title = readMeJson.title.Value;
+            var animated_gif = readMeJson.animated_gif.Value;
+            var create_issue  = readMeJson.create_issue.Value;
 
             builder.AppendLine(title);
             builder.AppendLine();
             builder.AppendLine(animated_gif);
+            builder.AppendLine();
+            builder.AppendLine(create_issue);
             builder.AppendLine();
           }
 
@@ -56,14 +59,14 @@ namespace ReadMeGenerator
 
               if (fileNameWithoutExtension == "csharp")
               {
-                tableHeader = readMeArray.csharp_table_header.Value;
+                tableHeader = readMeJson.csharp_table_header.Value;
                 builder.AppendLine(tableHeader);
                 builder.AppendLine();
               }
 
               if (fileNameWithoutExtension == "razor")
               {
-                tableHeader = readMeArray.razor_table_header.Value;
+                tableHeader = readMeJson.razor_table_header.Value;
                 builder.AppendLine(tableHeader);
                 builder.AppendLine();
               }
