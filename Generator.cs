@@ -46,6 +46,7 @@ namespace ReadMeGenerator
             builder.AppendLine();
             builder.AppendLine(animated_gif);
             builder.AppendLine();
+            builder.AppendLine();
             builder.AppendLine(create_issue);
             builder.AppendLine();
           }
@@ -71,12 +72,11 @@ namespace ReadMeGenerator
                 builder.AppendLine();
               }
               var json = reader.ReadToEnd();
-              dynamic array = JsonConvert.DeserializeObject(json);
+              dynamic jsonArray = JsonConvert.DeserializeObject(json);
               var markdownTable = new List<PrefixDescription>();
 
-              foreach (var item in array)
+              foreach (var item in jsonArray)
               {
-                var v = new { Amount = 108, Message = "Hello" };
                 markdownTable.Add(new PrefixDescription { Prefix = ((Newtonsoft.Json.Linq.JValue)((Newtonsoft.Json.Linq.JProperty)((Newtonsoft.Json.Linq.JContainer)((Newtonsoft.Json.Linq.JProperty)item).Value).Last).Value).Value.ToString(), Description = ((Newtonsoft.Json.Linq.JContainer)((Newtonsoft.Json.Linq.JContainer)((Newtonsoft.Json.Linq.JContainer)item).First).First.Next).First.ToString() });
               }
 
