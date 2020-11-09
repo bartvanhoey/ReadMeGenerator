@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using MarkdownLog;
+using Microsoft.CSharp.RuntimeBinder;
 using Newtonsoft.Json;
 
 namespace ReadMeGenerator
@@ -36,17 +37,34 @@ namespace ReadMeGenerator
           using (StreamReader r = new StreamReader(readMeJsonFilePath))
           {
             string json = r.ReadToEnd();
+            dynamic full_advantage;
+
             readMeJson = JsonConvert.DeserializeObject(json);
 
             var title = readMeJson.title.Value;
             var animated_gif = readMeJson.animated_gif.Value;
-            var create_issue  = readMeJson.create_issue.Value;
+            var create_issue = readMeJson.create_issue.Value;
+            try
+            {
+              full_advantage = readMeJson.full_advantage.Value;
+            }
+            catch (RuntimeBinderException)
+            {
+              full_advantage = null;
+            }
+
 
             builder.AppendLine(title);
             builder.AppendLine();
             builder.AppendLine(animated_gif);
             builder.AppendLine();
             builder.AppendLine();
+            if (parentSnippetsDirectory == "D:\\_MyVsCodeExtensions\\_ABPx" && full_advantage != null)
+            {
+              builder.AppendLine(full_advantage);
+              builder.AppendLine();
+              builder.AppendLine();
+            }
             builder.AppendLine(create_issue);
             builder.AppendLine();
           }
@@ -71,6 +89,7 @@ namespace ReadMeGenerator
                 builder.AppendLine(tableHeader);
                 builder.AppendLine();
               }
+              
               var json = reader.ReadToEnd();
               dynamic jsonArray = JsonConvert.DeserializeObject(json);
               var markdownTable = new List<PrefixDescription>();
