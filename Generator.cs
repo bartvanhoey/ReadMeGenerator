@@ -37,21 +37,21 @@ namespace ReadMeGenerator
           using (StreamReader r = new StreamReader(readMeJsonFilePath))
           {
             string json = r.ReadToEnd();
-            dynamic full_advantage;
+            // dynamic full_advantage;
 
             readMeJson = JsonConvert.DeserializeObject(json);
 
             var title = readMeJson.title.Value;
             var animated_gif = readMeJson.animated_gif.Value;
             var create_issue = readMeJson.create_issue.Value;
-            try
-            {
-              full_advantage = readMeJson.full_advantage.Value;
-            }
-            catch (RuntimeBinderException)
-            {
-              full_advantage = null;
-            }
+            //try
+            //{
+            //  full_advantage = readMeJson.full_advantage.Value;
+            //}
+            //catch (RuntimeBinderException)
+            //{
+            //  full_advantage = null;
+            //}
 
 
             builder.AppendLine(title);
@@ -59,12 +59,12 @@ namespace ReadMeGenerator
             builder.AppendLine(animated_gif);
             builder.AppendLine();
             builder.AppendLine();
-            if (parentSnippetsDirectory == "D:\\_MyVsCodeExtensions\\_ABPx" && full_advantage != null)
-            {
-              builder.AppendLine(full_advantage);
-              builder.AppendLine();
-              builder.AppendLine();
-            }
+            //if (parentSnippetsDirectory == "D:\\_MyVsCodeExtensions\\_ABPx" && full_advantage != null)
+            //{
+            //  builder.AppendLine(full_advantage);
+            //  builder.AppendLine();
+            //  builder.AppendLine();
+            //}
             builder.AppendLine(create_issue);
             builder.AppendLine();
           }
