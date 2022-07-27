@@ -3,117 +3,102 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using MarkdownLog;
-using Microsoft.CSharp.RuntimeBinder;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using static System.Console;
+using static System.IO.Directory;
+using static System.IO.Path;
+using static Newtonsoft.Json.JsonConvert;
 
 namespace ReadMeGenerator
 {
-  public class Generator
-  {
-    private readonly string _currentDirectory;
-    private readonly DirectoryInfo _parentDirectory;
-    private readonly List<string> _directoriesInParentDirectory;
-    private readonly List<string> _snippetsDirectories;
-
-    public Generator()
+    public class Generator
     {
-      _currentDirectory = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\netcoreapp3.1", "");
-      _parentDirectory = Directory.GetParent(_currentDirectory);
-      _directoriesInParentDirectory = Directory.GetDirectories(_parentDirectory.ToString()).ToList();
-      _snippetsDirectories = _directoriesInParentDirectory.Select(e => Path.Combine(e.Replace("\\bin\\Debug\\netcoreapp3.1", ""), "snippets")).ToList();
-    }
+        private readonly List<string> _snippetsDirectories;
 
-    public void Generate()
-    {
-      foreach (var snippetDirectory in _snippetsDirectories)
-      {
-        if (Directory.Exists(snippetDirectory))
+        public Generator()
         {
-          var parentSnippetsDirectory = Directory.GetParent(snippetDirectory).ToString();
-          var readMeJsonFilePath = Path.Combine(parentSnippetsDirectory, "readme.json");
-          var builder = new StringBuilder();
-          dynamic readMeJson;
+            var currentDirectory = GetCurrentDirectory().Replace("\\bin\\Debug\\netcoreapp3.1", "");
+            var parentDirectory = GetParent(currentDirectory);
+            var directoriesInParentDirectory = GetDirectories(parentDirectory.ToString()).ToList();
+            _snippetsDirectories = directoriesInParentDirectory
+                .Select(e => Combine(e.Replace("\\bin\\Debug\\netcoreapp3.1", ""), "snippets")).ToList();
+        }
 
-          using (StreamReader r = new StreamReader(readMeJsonFilePath))
-          {
-            string json = r.ReadToEnd();
-            // dynamic full_advantage;
-
-            readMeJson = JsonConvert.DeserializeObject(json);
-
-            var title = readMeJson.title.Value;
-            var animated_gif = readMeJson.animated_gif.Value;
-            var create_issue = readMeJson.create_issue.Value;
-            //try
-            //{
-            //  full_advantage = readMeJson.full_advantage.Value;
-            //}
-            //catch (RuntimeBinderException)
-            //{
-            //  full_advantage = null;
-            //}
-
-
-            builder.AppendLine(title);
-            builder.AppendLine();
-            builder.AppendLine(animated_gif);
-            builder.AppendLine();
-            builder.AppendLine();
-            //if (parentSnippetsDirectory == "D:\\_MyVsCodeExtensions\\_ABPx" && full_advantage != null)
-            //{
-            //  builder.AppendLine(full_advantage);
-            //  builder.AppendLine();
-            //  builder.AppendLine();
-            //}
-            builder.AppendLine(create_issue);
-            builder.AppendLine();
-          }
-
-          foreach (var snippetFilePath in Directory.GetFiles(snippetDirectory))
-          {
-            using (StreamReader reader = new StreamReader(snippetFilePath))
+        public void Generate()
+        {
+            foreach (var directory in _snippetsDirectories)
             {
-              var tableHeader = string.Empty;
-              var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(snippetFilePath);
+                if (Exists(directory))
+                {
+                    var parentSnippetsDirectory = GetParent(directory).ToString();
+                    var readMeJsonFilePath = Combine(parentSnippetsDirectory, "readme.json");
+                    var builder = new StringBuilder();
+                    dynamic readMeJson;
 
-              if (fileNameWithoutExtension == "csharp")
-              {
-                tableHeader = readMeJson.csharp_table_header.Value;
-                builder.AppendLine(tableHeader);
-                builder.AppendLine();
-              }
+                    using (var reader = new StreamReader(readMeJsonFilePath))
+                    {
+                        readMeJson = DeserializeObject(reader.ReadToEnd());
 
-              if (fileNameWithoutExtension == "razor")
-              {
-                tableHeader = readMeJson.razor_table_header.Value;
-                builder.AppendLine(tableHeader);
-                builder.AppendLine();
-              }
-              
-              var json = reader.ReadToEnd();
-              dynamic jsonArray = JsonConvert.DeserializeObject(json);
-              var markdownTable = new List<PrefixDescription>();
+                        var title = readMeJson?.title.Value;
+                        var animatedGif = readMeJson?.animated_gif.Value;
+                        var createIssue = readMeJson?.create_issue.Value;
 
-              foreach (var item in jsonArray)
-              {
-                markdownTable.Add(new PrefixDescription { Prefix = ((Newtonsoft.Json.Linq.JValue)((Newtonsoft.Json.Linq.JProperty)((Newtonsoft.Json.Linq.JContainer)((Newtonsoft.Json.Linq.JProperty)item).Value).Last).Value).Value.ToString(), Description = ((Newtonsoft.Json.Linq.JContainer)((Newtonsoft.Json.Linq.JContainer)((Newtonsoft.Json.Linq.JContainer)item).First).First.Next).First.ToString() });
-              }
+                        builder.AppendLine(title);
+                        builder.AppendLine();
+                        builder.AppendLine(animatedGif);
+                        builder.AppendLine();
+                        builder.AppendLine();
+                        builder.AppendLine(createIssue);
+                        builder.AppendLine();
+                    }
 
-              builder.Append(markdownTable.ToArray().ToMarkdownTable());
-              builder.AppendLine();
+                    foreach (var snippetFilePath in GetFiles(directory))
+                    {
+                        using var reader = new StreamReader(snippetFilePath);
+
+                        var fileName = GetFileNameWithoutExtension(snippetFilePath);
+                        var tableHeader = readMeJson?.csharp_table_header.Value;
+
+                        switch (fileName)
+                        {
+                            case "csharp":
+                                builder.AppendLine(tableHeader);
+                                builder.AppendLine();
+                                break;
+                            case "razor":
+                                builder.AppendLine(tableHeader);
+                                builder.AppendLine();
+                                break;
+                        }
+
+                        dynamic snippets = DeserializeObject(reader.ReadToEnd());
+                        var markdownTable = new List<PrefixDescription>();
+
+                        if (snippets != null)
+                        {
+                            foreach (var snippet in snippets)
+                            {
+                                markdownTable.Add(new PrefixDescription
+                                {
+                                    Prefix = ((JValue)((JProperty)((JContainer)((JProperty)snippet).Value).Last)?.Value)?.Value?.ToString(),
+                                    Description = ((JContainer)((JContainer)((JContainer)snippet).First)?.First?.Next)?.First?.ToString()
+                                });
+                            }
+                        }
+
+                        builder.Append(markdownTable.OrderByDescending(x => x.Prefix).ToArray().ToMarkdownTable());
+                        builder.AppendLine();
+                    }
+
+                    using var writer = new StreamWriter(Combine(parentSnippetsDirectory, $"README.md"));
+                    WriteLine(Combine(parentSnippetsDirectory, $"README.md"));
+                    writer.WriteLine(builder.ToString());
+                }
+                else
+                {
+                    WriteLine($"{directory} does not exist");
+                }
             }
-          }
-          using (StreamWriter writer = new StreamWriter(Path.Combine(parentSnippetsDirectory, $"README.md")))
-          {
-            System.Console.WriteLine(Path.Combine(parentSnippetsDirectory, $"README.md"));
-            writer.WriteLine(builder.ToString());
-          }
         }
-        else
-        {
-          System.Console.WriteLine($"{snippetDirectory} does not exist");
-        }
-      }
     }
-  }
 }
