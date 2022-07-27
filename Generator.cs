@@ -86,7 +86,7 @@ namespace ReadMeGenerator
                             }
                         }
 
-                        builder.Append(markdownTable.OrderByDescending(x => x.Prefix).ToArray().ToMarkdownTable());
+                        builder.Append(markdownTable.OrderBy(x => x.Prefix).ToArray().ToMarkdownTable());
                         builder.AppendLine();
                     }
 
