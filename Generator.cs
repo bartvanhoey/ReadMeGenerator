@@ -38,16 +38,20 @@ namespace ReadMeGenerator
                     using var reader = new StreamReader(snippetFilePath);
 
                     var fileName = GetFileNameWithoutExtension(snippetFilePath);
-                    var tableHeader = readMeJson?.csharp_table_header.Value;
+                    
 
                     switch (fileName)
                     {
                         case "csharp":
-                            builder.AppendLine(tableHeader);
+                            builder.AppendLine(readMeJson?.csharp_table_header.Value);
                             builder.AppendLine();
                             break;
                         case "razor":
-                            builder.AppendLine(tableHeader);
+                            builder.AppendLine(readMeJson?.razor_table_header.Value);
+                            builder.AppendLine();
+                            break;
+                        case "jsonc":
+                            builder.AppendLine(readMeJson?.jsonc_table_header.Value);
                             builder.AppendLine();
                             break;
                     }
