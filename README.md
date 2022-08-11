@@ -2,4 +2,4 @@
 
 # ReadMeGenerator
 
-Generates the README file of a VsCode Extension from a json file
+Automatically generates the README file of a VsCode Extension from a json file!
