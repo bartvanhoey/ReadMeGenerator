@@ -14,14 +14,14 @@ namespace ReadMeGenerator
     {
         public void Generate()
         {
-            foreach (var directory in GetSnippetsDirectory())
+            foreach (var snippetDirectory in GetSnippetsFromVsCodeExtensionDirectory())
             {
-                if (!Exists(directory)) continue;
+                if (!Exists(snippetDirectory)) continue;
                 
                 var builder = new StringBuilder();
                 dynamic readMeJson;
 
-                using (var reader = new StreamReader(Combine(GetParent(directory).ToString(), "readme.json")))
+                using (var reader = new StreamReader(Combine(GetParentDirectory(snippetDirectory), "readme.json")))
                 {
                     readMeJson = DeserializeObject(reader.ReadToEnd());
 
@@ -29,55 +29,54 @@ namespace ReadMeGenerator
                     var animatedGif = readMeJson?.animated_gif.Value;
                     var createIssue = readMeJson?.create_issue.Value;
 
-                    builder.AppendLine(title).AppendLine().AppendLine(animatedGif).AppendLine().AppendLine()
-                        .AppendLine(createIssue).AppendLine();
+                    builder.AppendLine(title)
+                        .AppendLine()
+                        .AppendLine(animatedGif)
+                        .AppendLine()
+                        .AppendLine()
+                        .AppendLine(createIssue)
+                        .AppendLine();
                 }
 
-                foreach (var snippetFilePath in GetFiles(directory))
+                foreach (var snippetFilePath in GetFiles(snippetDirectory))
                 {
-                    using var reader = new StreamReader(snippetFilePath);
-
-                    var fileName = GetFileNameWithoutExtension(snippetFilePath);
-                    
-
-                    switch (fileName)
-                    {
-                        case "csharp":
-                            builder.AppendLine(readMeJson?.csharp_table_header.Value);
-                            builder.AppendLine();
-                            break;
-                        case "razor":
-                            builder.AppendLine(readMeJson?.razor_table_header.Value);
-                            builder.AppendLine();
-                            break;
-                        case "jsonc":
-                            builder.AppendLine(readMeJson?.jsonc_table_header.Value);
-                            builder.AppendLine();
-                            break;
-                    }
-
-                    dynamic snippets = DeserializeObject(reader.ReadToEnd());
-                    var markdownTable = new List<MarkDownTableEntry>();
-
-                    if (snippets != null)
-                        foreach (var snippet in snippets)
-                            markdownTable.Add(new MarkDownTableEntry(snippet));
-
-                    builder.Append(markdownTable.OrderBy(x => x.Prefix).ToArray().ToMarkdownTable()).AppendLine();
+                    builder.AppendTableHeader((object)readMeJson, snippetFilePath);
+                    builder.Append(GetMarkDownTableFromFile(snippetFilePath)).AppendLine();
                 }
-
-                using var writer = new StreamWriter(Combine(GetParent(directory).ToString(), "README.md"));
-                WriteLine(Combine(GetParent(directory).ToString(), $"README.md"));
-                writer.WriteLine(builder.ToString());
+                WriteToReadMeFile(snippetDirectory, builder);
             }
         }
 
-        private static List<string> GetSnippetsDirectory()
+        private static Table GetMarkDownTableFromFile(string snippetFile)
         {
-            var currentDirectory = GetCurrentDirectory().Replace("\\bin\\Debug\\netcoreapp3.1", "");
-            var parentDirectory = GetParent(currentDirectory);
-            return GetDirectories(parentDirectory.ToString()).ToList()
-                .Select(e => Combine(e.Replace("\\bin\\Debug\\netcoreapp3.1", ""), "snippets")).ToList();
+            using var snippetFileReader = new StreamReader(snippetFile);
+            dynamic snippets = DeserializeObject(snippetFileReader.ReadToEnd());
+            var markdownTable = new List<MarkDownTableEntry>();
+            if (snippets == null) return new Table();
+            foreach (var snippet in snippets)
+                markdownTable.Add(new MarkDownTableEntry(snippet));
+
+            return markdownTable.OrderBy(x => x.Prefix).ToMarkdownTable();
+
         }
+
+        private static void WriteToReadMeFile(string directory, StringBuilder builder)
+        {
+            var pathReadMeFile = Combine(GetParentDirectory(directory), "README.md");
+            using var writer = new StreamWriter(pathReadMeFile);
+            WriteLine(pathReadMeFile);
+            writer.WriteLine(builder.ToString());
+        }
+
+        private static List<string> GetSnippetsFromVsCodeExtensionDirectory()
+        {
+            var currentDirectory = GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0", "");
+            var parentDirectory = GetParentDirectory(currentDirectory);
+            var snippetsDirectory = GetDirectories(parentDirectory).ToList()
+                .Select(e => Combine(e.Replace("\\bin\\Debug\\net6.0", ""), "Snippets")).ToList();
+            return snippetsDirectory;
+        }
+
+        private static string GetParentDirectory(string currentDirectory) => GetParent(currentDirectory)?.ToString();
     }
 }
