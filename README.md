@@ -1,4 +1,4 @@
-![.NET Core](https://github.com/bartvanhoey/ReadMeGenerator/workflows/.NET%20Core/badge.svg?branch=main)
+[![.NET Core](https://github.com/bartvanhoey/ReadMeGenerator/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/bartvanhoey/ReadMeGenerator/actions/workflows/dotnet-core.yml)
 
 # ReadMeGenerator
 
