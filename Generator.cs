@@ -16,7 +16,7 @@ namespace ReadMeGenerator
         {
             foreach (var directory in GetSnippetsDirectory())
             {
-                if (!Exists(directory)) continue;
+                if (!Directory.Exists(directory)) continue;
                 
                 var builder = new StringBuilder();
                 dynamic readMeJson;
