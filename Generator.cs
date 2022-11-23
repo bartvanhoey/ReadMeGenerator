@@ -70,10 +70,10 @@ namespace ReadMeGenerator
 
         private static List<string> GetSnippetsFromVsCodeExtensionDirectory()
         {
-            var currentDirectory = GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0", "");
+            var currentDirectory = GetCurrentDirectory().Replace("\\bin\\Debug\\net7.0", "");
             var parentDirectory = GetParentDirectory(currentDirectory);
             var snippetsDirectory = GetDirectories(parentDirectory).ToList()
-                .Select(e => Combine(e.Replace("\\bin\\Debug\\net6.0", ""), "Snippets")).ToList();
+                .Select(e => Combine(e.Replace("\\bin\\Debug\\net7.0", ""), "Snippets")).ToList();
             return snippetsDirectory;
         }
 
