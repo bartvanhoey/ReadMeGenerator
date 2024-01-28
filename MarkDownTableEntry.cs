@@ -14,6 +14,7 @@ namespace ReadMeGenerator
         }
 
         public string Prefix { get; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string Description { get; }
     }
 }

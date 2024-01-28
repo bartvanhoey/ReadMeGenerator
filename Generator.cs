@@ -21,22 +21,20 @@ namespace ReadMeGenerator
                 var builder = new StringBuilder();
                 dynamic readMeJson;
 
-                using (var reader = new StreamReader(Combine(GetParentDirectory(directory), "readme.json")))
-                {
-                    readMeJson = DeserializeObject(reader.ReadToEnd());
+                using var reader = new StreamReader(Combine(GetParentDirectory(directory), "readme.json"));
+                readMeJson = DeserializeObject(reader.ReadToEnd());
 
-                    var title = readMeJson?.title.Value;
-                    var animatedGif = readMeJson?.animated_gif.Value;
-                    var createIssue = readMeJson?.create_issue.Value;
+                var title = readMeJson?.title.Value;
+                var animatedGif = readMeJson?.animated_gif.Value;
+                var createIssue = readMeJson?.create_issue.Value;
 
-                    builder.AppendLine(title)
-                        .AppendLine()
-                        .AppendLine(animatedGif)
-                        .AppendLine()
-                        .AppendLine()
-                        .AppendLine(createIssue)
-                        .AppendLine();
-                }
+                builder.AppendLine(title)
+                    .AppendLine()
+                    .AppendLine(animatedGif)
+                    .AppendLine()
+                    .AppendLine()
+                    .AppendLine(createIssue)
+                    .AppendLine();
 
                 foreach (var snippetFilePath in GetFiles(directory))
                 {

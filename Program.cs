@@ -1,7 +1,3 @@
-﻿namespace ReadMeGenerator
-{
-    class Program
-    {
-        static void Main() => new Generator().Generate();
-    }
-}
+﻿using ReadMeGenerator;
+
+new Generator().Generate();
